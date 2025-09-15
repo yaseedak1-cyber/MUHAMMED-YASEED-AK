@@ -1,9 +1,9 @@
-
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { AppState, Grade, Subject } from './types';
 import HomeScreen from './components/HomeScreen';
 import SubjectSelectionScreen from './components/SubjectSelectionScreen';
 import ContentScreen from './components/ContentScreen';
+import AnalyticsScreen from './components/AnalyticsScreen';
 import { AppContext } from './contexts/AppContext';
 
 const App: React.FC = () => {
@@ -37,6 +37,10 @@ const App: React.FC = () => {
     setAppState({ currentView: 'home' });
   }, []);
 
+  const goToAnalytics = useCallback(() => {
+    setAppState({ currentView: 'analytics' });
+  }, []);
+
   const goToSubjectSelection = useCallback(() => {
     if (appState.grade) {
       setAppState({ currentView: 'subjectSelection', grade: appState.grade });
@@ -49,7 +53,8 @@ const App: React.FC = () => {
       selectSubject,
       goHome,
       goToSubjectSelection,
-  }), [appState, selectGrade, selectSubject, goHome, goToSubjectSelection]);
+      goToAnalytics,
+  }), [appState, selectGrade, selectSubject, goHome, goToSubjectSelection, goToAnalytics]);
 
   const renderContent = () => {
     switch (appState.currentView) {
@@ -59,6 +64,8 @@ const App: React.FC = () => {
         return <SubjectSelectionScreen />;
       case 'content':
         return <ContentScreen />;
+      case 'analytics':
+        return <AnalyticsScreen />;
       default:
         return <HomeScreen />;
     }

@@ -13,7 +13,7 @@ export interface Chapter {
   title: string;
 }
 
-export type View = 'home' | 'subjectSelection' | 'content';
+export type View = 'home' | 'subjectSelection' | 'content' | 'analytics';
 
 export interface AppState {
     currentView: View;
@@ -61,10 +61,34 @@ export interface QuizSettings {
     questionTypes: QuestionType[];
 }
 
+export interface QuizRecord {
+    date: string; // ISO string
+    grade: Grade;
+    subject: Subject;
+    chapters: string[]; // chapter titles
+    score: number;
+    totalQuestions: number;
+    percentage: number;
+}
+
+export interface ChapterProgress {
+    [chapterId: string]: {
+        completed: boolean;
+        lastViewed: string; // ISO string
+    };
+}
+
+export interface PerformanceData {
+    quizHistory: QuizRecord[];
+    chapterProgress: Record<Grade, Partial<Record<Subject, ChapterProgress>>>;
+}
+
+
 export interface AppContextType {
     appState: AppState;
     selectGrade: (grade: Grade) => void;
     selectSubject: (subject: Subject) => void;
     goHome: () => void;
     goToSubjectSelection: () => void;
+    goToAnalytics: () => void;
 }

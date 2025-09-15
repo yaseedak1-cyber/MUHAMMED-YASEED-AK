@@ -1,4 +1,3 @@
-
 import React, { useContext } from 'react';
 import { AppContext } from '../contexts/AppContext';
 import { Grade } from '../types';
@@ -9,6 +8,11 @@ const BookIcon = () => (
   </svg>
 );
 
+const ChartBarIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+    </svg>
+);
 
 const HomeScreen: React.FC = () => {
     const context = useContext(AppContext);
@@ -17,7 +21,7 @@ const HomeScreen: React.FC = () => {
         return <div>Loading...</div>;
     }
 
-    const { selectGrade } = context;
+    const { selectGrade, goToAnalytics } = context;
 
     const GradeButton: React.FC<{ grade: Grade, color: string }> = ({ grade, color }) => (
         <button
@@ -27,6 +31,7 @@ const HomeScreen: React.FC = () => {
                 ${color} text-white rounded-2xl shadow-lg hover:shadow-2xl 
                 transform hover:-translate-y-2 transition-all duration-300 ease-in-out
             `}
+            aria-label={`Select Class ${grade}`}
         >
             <BookIcon />
             <span className="text-2xl font-bold">Class {grade}</span>
@@ -35,7 +40,7 @@ const HomeScreen: React.FC = () => {
     );
 
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen">
+        <div className="flex flex-col items-center justify-center min-h-screen py-8">
             <header className="text-center mb-12">
                 <h1 className="text-5xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-teal-400">
                     NCERT Genius AI
@@ -49,6 +54,17 @@ const HomeScreen: React.FC = () => {
                 <GradeButton grade={9} color="bg-gradient-to-br from-purple-500 to-indigo-600" />
                 <GradeButton grade={10} color="bg-gradient-to-br from-sky-500 to-cyan-500" />
             </main>
+
+            <footer className="mt-16 text-center">
+                <button
+                    onClick={goToAnalytics}
+                    className="flex items-center gap-3 px-6 py-3 font-semibold text-white bg-slate-700 dark:bg-slate-800 rounded-lg shadow-md hover:bg-slate-800 dark:hover:bg-slate-700 transition-colors duration-300 transform hover:scale-105"
+                    aria-label="View performance analytics"
+                >
+                    <ChartBarIcon />
+                    <span>View Performance Analytics</span>
+                </button>
+            </footer>
         </div>
     );
 };

@@ -3,6 +3,7 @@ import { AppContext } from '../contexts/AppContext';
 import { CHAPTERS } from '../constants';
 import { Chapter, ChapterContent, QuizSettings, QuizQuestion } from '../types';
 import { fetchChapterContent, generateQuiz } from '../services/geminiService';
+import { markChapterAsViewed } from '../services/analyticsService';
 import Spinner from './shared/Spinner';
 import QuizSetup from './quiz/QuizSetup';
 import QuizView from './quiz/QuizView';
@@ -21,6 +22,7 @@ const ContentScreen: React.FC = () => {
     // Quiz State
     const [quizState, setQuizState] = useState<'setup' | 'active' | 'results'>('setup');
     const [quizQuestions, setQuizQuestions] = useState<QuizQuestion[] | null>(null);
+    const [quizSettings, setQuizSettings] = useState<QuizSettings | null>(null);
     const [userAnswers, setUserAnswers] = useState<string[]>([]);
     const [isQuizLoading, setIsQuizLoading] = useState(false);
     const [quizError, setQuizError] = useState<string | null>(null);
@@ -50,6 +52,7 @@ const ContentScreen: React.FC = () => {
         try {
             const fetchedContent = await fetchChapterContent(context.appState.grade, context.appState.subject, chapter);
             setContent(fetchedContent);
+            markChapterAsViewed(context.appState.grade, context.appState.subject, chapter.id);
         } catch (err: any) {
             if (!navigator.onLine) {
                 setError("You seem to be offline. Please check your internet connection to load chapter content.");
@@ -66,6 +69,7 @@ const ContentScreen: React.FC = () => {
         if (!context || !context.appState.grade || !context.appState.subject) return;
         setIsQuizLoading(true);
         setQuizError(null);
+        setQuizSettings(settings);
         try {
             const questions = await generateQuiz(context.appState.grade, context.appState.subject, settings);
             if (questions.length === 0) {
@@ -95,6 +99,7 @@ const ContentScreen: React.FC = () => {
         setQuizQuestions(null);
         setUserAnswers([]);
         setQuizError(null);
+        setQuizSettings(null);
     };
     
     const handleExitQuiz = () => {
@@ -199,7 +204,7 @@ const ContentScreen: React.FC = () => {
                     case 'active':
                         return <QuizView questions={quizQuestions!} onFinishQuiz={handleFinishQuiz} />;
                     case 'results':
-                        return <QuizResults questions={quizQuestions!} userAnswers={userAnswers} onRestart={handleRestartQuiz} onExit={handleExitQuiz} />;
+                        return <QuizResults questions={quizQuestions!} userAnswers={userAnswers} quizSettings={quizSettings!} onRestart={handleRestartQuiz} onExit={handleExitQuiz} />;
                 }
         }
     };

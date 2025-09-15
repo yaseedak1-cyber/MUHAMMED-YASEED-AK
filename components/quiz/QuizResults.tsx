@@ -1,15 +1,19 @@
-import React from 'react';
-import { QuizQuestion, QuestionType } from '../../types';
+import React, { useEffect, useContext } from 'react';
+import { QuizQuestion, QuizSettings } from '../../types';
+import { recordQuizResult } from '../../services/analyticsService';
+import { AppContext } from '../../contexts/AppContext';
 
 interface QuizResultsProps {
     questions: QuizQuestion[];
     userAnswers: string[];
+    quizSettings: QuizSettings;
     onRestart: () => void;
     onExit: () => void;
 }
 
-const QuizResults: React.FC<QuizResultsProps> = ({ questions, userAnswers, onRestart, onExit }) => {
-    
+const QuizResults: React.FC<QuizResultsProps> = ({ questions, userAnswers, quizSettings, onRestart, onExit }) => {
+    const context = useContext(AppContext);
+
     const calculateScore = () => {
         let correctAnswers = 0;
         questions.forEach((q, index) => {
@@ -21,7 +25,21 @@ const QuizResults: React.FC<QuizResultsProps> = ({ questions, userAnswers, onRes
     };
 
     const score = calculateScore();
-    const percentage = Math.round((score / questions.length) * 100);
+    const percentage = questions.length > 0 ? Math.round((score / questions.length) * 100) : 0;
+
+    useEffect(() => {
+        if (context?.appState.grade && context?.appState.subject && quizSettings) {
+            recordQuizResult({
+                grade: context.appState.grade,
+                subject: context.appState.subject,
+                chapters: quizSettings.chapters.map(c => c.title),
+                score: score,
+                totalQuestions: questions.length,
+                percentage: percentage,
+            });
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []); 
 
     const getResultColor = () => {
         if (percentage >= 80) return 'text-green-500';
