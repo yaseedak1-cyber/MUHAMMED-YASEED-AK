@@ -73,4 +73,20 @@ export const CHAPTERS: Record<Grade, Record<Subject, Chapter[]>> = {
     }
 };
 
+export const SUBJECT_DESCRIPTIONS: Record<Grade, Record<Subject, string>> = {
+    9: {
+        [Subject.History]: "Explore major world events including the French Revolution, Socialism in Europe and the Russian Revolution, Nazism and the Rise of Hitler, and the impact of colonialism on societies.",
+        [Subject.Geography]: "Discover the geography of India, including its size, location, physical features, climate, natural vegetation, and population distribution.",
+        [Subject.Civics]: "Understand the foundations of democracy, constitutional design in India, the intricacies of electoral politics, the functioning of governmental institutions, and democratic rights.",
+        [Subject.Economics]: "Learn basic economic principles through the story of a village, the role of people as a resource, the challenge of poverty, and food security in India.",
+    },
+    10: {
+        [Subject.History]: "Trace the development of nationalism in Europe and India, the making of a global world, the age of industrialisation, and the role of print culture in shaping modern society.",
+        [Subject.Geography]: "Study India's resources and their development, forest and wildlife, water resources, agriculture, minerals, energy resources, manufacturing industries, and lifelines of the national economy.",
+        [Subject.Civics]: "Examine the principles of power-sharing and federalism, the role of gender, religion, and caste in politics, the functions of political parties, and the outcomes of democracy.",
+        [Subject.Economics]: "Delve into concepts of development, different sectors of the Indian economy, the roles of money and credit, globalisation's impact on India, and consumer rights.",
+    }
+};
+
+
 export const SYLLABUS_YEAR = '2025-2026';

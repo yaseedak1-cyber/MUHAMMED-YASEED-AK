@@ -1,15 +1,22 @@
 import React, { useContext, useState, useEffect, useCallback } from 'react';
 import { AppContext } from '../contexts/AppContext';
 import { CHAPTERS } from '../constants';
-import { Chapter, ChapterContent, QuizSettings, QuizQuestion } from '../types';
+import { Chapter, ChapterContent, QuizSettings, QuizQuestion, PerformanceData } from '../types';
 import { fetchChapterContent, generateQuiz } from '../services/geminiService';
-import { markChapterAsViewed } from '../services/analyticsService';
+import { markChapterAsViewed, getPerformanceData } from '../services/analyticsService';
 import Spinner from './shared/Spinner';
 import QuizSetup from './quiz/QuizSetup';
 import QuizView from './quiz/QuizView';
 import QuizResults from './quiz/QuizResults';
 
 type Tab = 'summary' | 'concepts' | 'questions' | 'notes' | 'quiz';
+
+const CheckCircleIcon: React.FC = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-green-500 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+    </svg>
+);
+
 
 const ContentScreen: React.FC = () => {
     const context = useContext(AppContext);
@@ -18,6 +25,7 @@ const ContentScreen: React.FC = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [activeTab, setActiveTab] = useState<Tab>('summary');
+    const [performanceData, setPerformanceData] = useState<PerformanceData>(() => getPerformanceData());
 
     // Quiz State
     const [quizState, setQuizState] = useState<'setup' | 'active' | 'results'>('setup');
@@ -43,7 +51,7 @@ const ContentScreen: React.FC = () => {
 
     const handleChapterSelect = useCallback(async (chapter: Chapter) => {
         if (!context || !context.appState.grade || !context.appState.subject) return;
-        if (selectedChapter?.id === chapter.id) return;
+        if (selectedChapter?.id === chapter.id && content) return; // Don't reload if already selected and has content
         
         setSelectedChapter(chapter);
         setIsLoading(true);
@@ -53,9 +61,10 @@ const ContentScreen: React.FC = () => {
             const fetchedContent = await fetchChapterContent(context.appState.grade, context.appState.subject, chapter);
             setContent(fetchedContent);
             markChapterAsViewed(context.appState.grade, context.appState.subject, chapter.id);
+            setPerformanceData(getPerformanceData()); // Refresh performance data to show checkmark
         } catch (err: any) {
             if (!navigator.onLine) {
-                setError("You seem to be offline. Please check your internet connection to load chapter content.");
+                setError("You are currently offline. AI-generated chapter summaries, Q&As, and other content cannot be loaded. Please connect to the internet to access this feature.");
             } else {
                 setError(err.message || 'An unknown error occurred.');
             }
@@ -63,7 +72,7 @@ const ContentScreen: React.FC = () => {
             setIsLoading(false);
             setActiveTab('summary');
         }
-    }, [context, selectedChapter]);
+    }, [context, selectedChapter, content]);
 
     const handleStartQuiz = useCallback(async (settings: QuizSettings) => {
         if (!context || !context.appState.grade || !context.appState.subject) return;
@@ -80,7 +89,7 @@ const ContentScreen: React.FC = () => {
             setQuizState('active');
         } catch (err: any) {
             if (!navigator.onLine) {
-                setQuizError("You seem to be offline. Please check your internet connection to generate a quiz.");
+                setQuizError("You are currently offline. AI-powered quizzes cannot be generated. Please connect to the internet to create a quiz.");
             } else {
                 setQuizError(err.message || "An error occurred while generating the quiz.");
             }
@@ -220,22 +229,27 @@ const ContentScreen: React.FC = () => {
                     <h2 className="text-xl font-bold mb-1">Class {grade} {subject}</h2>
                     <h3 className="text-lg font-semibold text-slate-600 dark:text-slate-400 mb-4">Chapters</h3>
                     <nav className="space-y-2">
-                        {chapters.map(chapter => (
-                            <a
-                                key={chapter.id}
-                                href="#"
-                                onClick={(e) => { e.preventDefault(); handleChapterSelect(chapter); }}
-                                className={`
-                                    block w-full text-left p-3 rounded-md text-sm transition-colors duration-200
-                                    ${selectedChapter?.id === chapter.id
-                                        ? 'bg-blue-600 text-white font-semibold shadow'
-                                        : 'bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700'
-                                    }
-                                `}
-                            >
-                                {chapter.title}
-                            </a>
-                        ))}
+                        {chapters.map(chapter => {
+                            const isCompleted = performanceData?.chapterProgress?.[grade]?.[subject]?.[chapter.id]?.completed;
+                            return (
+                                <a
+                                    key={chapter.id}
+                                    href="#"
+                                    onClick={(e) => { e.preventDefault(); handleChapterSelect(chapter); }}
+                                    className={`
+                                        block w-full text-left p-3 rounded-md text-sm transition-colors duration-200
+                                        flex items-center justify-between gap-2
+                                        ${selectedChapter?.id === chapter.id
+                                            ? 'bg-blue-600 text-white font-semibold shadow'
+                                            : 'bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700'
+                                        }
+                                    `}
+                                >
+                                    <span className="flex-grow">{chapter.title}</span>
+                                    {isCompleted && <CheckCircleIcon />}
+                                </a>
+                            );
+                        })}
                     </nav>
                 </div>
             </aside>

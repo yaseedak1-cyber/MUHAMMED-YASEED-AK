@@ -4,11 +4,28 @@ import HomeScreen from './components/HomeScreen';
 import SubjectSelectionScreen from './components/SubjectSelectionScreen';
 import ContentScreen from './components/ContentScreen';
 import AnalyticsScreen from './components/AnalyticsScreen';
+import EmailCaptureScreen from './components/EmailCaptureScreen';
 import { AppContext } from './contexts/AppContext';
 
 const App: React.FC = () => {
   const [appState, setAppState] = useState<AppState>({ currentView: 'home' });
   const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [isLoadingEmail, setIsLoadingEmail] = useState(true);
+
+  useEffect(() => {
+    try {
+        const savedEmail = localStorage.getItem('userEmail');
+        if (savedEmail) {
+            setUserEmail(savedEmail);
+        }
+    } catch (error) {
+        console.error('Could not access localStorage:', error);
+    } finally {
+        setIsLoadingEmail(false);
+    }
+  }, []);
+
 
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
@@ -21,6 +38,16 @@ const App: React.FC = () => {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
     };
+  }, []);
+
+  const handleSetEmail = useCallback((email: string) => {
+    try {
+        localStorage.setItem('userEmail', email);
+        setUserEmail(email);
+    } catch (error) {
+        console.error('Could not save email to localStorage:', error);
+        setUserEmail(email); // Set in state anyway to proceed for the session
+    }
   }, []);
 
   const selectGrade = useCallback((grade: Grade) => {
@@ -54,7 +81,8 @@ const App: React.FC = () => {
       goHome,
       goToSubjectSelection,
       goToAnalytics,
-  }), [appState, selectGrade, selectSubject, goHome, goToSubjectSelection, goToAnalytics]);
+      isOnline,
+  }), [appState, selectGrade, selectSubject, goHome, goToSubjectSelection, goToAnalytics, isOnline]);
 
   const renderContent = () => {
     switch (appState.currentView) {
@@ -70,6 +98,15 @@ const App: React.FC = () => {
         return <HomeScreen />;
     }
   };
+
+  if (isLoadingEmail) {
+    return <div className="min-h-screen bg-gray-100 dark:bg-gray-900" />;
+  }
+
+  if (!userEmail) {
+    return <EmailCaptureScreen onSetEmail={handleSetEmail} />;
+  }
+
 
   return (
     <AppContext.Provider value={contextValue}>

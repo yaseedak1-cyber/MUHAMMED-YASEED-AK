@@ -1,3 +1,4 @@
+import { PerformanceData } from "./services/analyticsService";
 
 export type Grade = 9 | 10;
 
@@ -91,4 +92,6 @@ export interface AppContextType {
     goHome: () => void;
     goToSubjectSelection: () => void;
     goToAnalytics: () => void;
+    isOnline: boolean;
+    userEmail?: string | null;
 }

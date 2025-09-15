@@ -1,8 +1,8 @@
 
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { AppContext } from '../contexts/AppContext';
-import { SUBJECTS } from '../constants';
-import { Subject } from '../types';
+import { SUBJECTS, SUBJECT_DESCRIPTIONS, CHAPTERS } from '../constants';
+import { Subject, Grade } from '../types';
 
 const SubjectCard: React.FC<{ subject: Subject; onClick: () => void; icon: JSX.Element, color: string }> = ({ subject, onClick, icon, color }) => (
     <div
@@ -37,6 +37,64 @@ const ICONS: Record<Subject, {icon: JSX.Element, color: string}> = {
     [Subject.Economics]: { icon: <EconomicsIcon/>, color: 'bg-purple-500' },
 }
 
+const SyllabusOverview: React.FC<{ grade: Grade }> = ({ grade }) => {
+    const [openSubject, setOpenSubject] = useState<Subject | null>(null);
+
+    const toggleSubject = (subject: Subject) => {
+        setOpenSubject(prev => (prev === subject ? null : subject));
+    };
+
+    const ChevronIcon: React.FC<{ isOpen: boolean }> = ({ isOpen }) => (
+        <svg xmlns="http://www.w3.org/2000/svg" className={`h-6 w-6 transform transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
+    );
+
+    return (
+        <div className="mt-16">
+            <h2 className="text-2xl font-bold text-center mb-6 text-slate-800 dark:text-slate-100">Syllabus Overview for Class {grade}</h2>
+            <div className="space-y-3">
+                {SUBJECTS.map(subject => {
+                    const description = SUBJECT_DESCRIPTIONS[grade][subject];
+                    const chapters = CHAPTERS[grade][subject];
+                    const isOpen = openSubject === subject;
+
+                    return (
+                        <div key={subject} className="bg-white dark:bg-slate-800 rounded-xl shadow-md overflow-hidden transition-all duration-300">
+                            <button
+                                onClick={() => toggleSubject(subject)}
+                                className="w-full flex justify-between items-center p-5 text-left font-semibold text-lg text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/50"
+                                aria-expanded={isOpen}
+                                aria-controls={`syllabus-${subject}`}
+                            >
+                                <span>{subject}</span>
+                                <ChevronIcon isOpen={isOpen} />
+                            </button>
+                            <div
+                                id={`syllabus-${subject}`}
+                                className={`transition-all duration-500 ease-in-out grid ${isOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}
+                            >
+                                <div className="overflow-hidden">
+                                    <div className="p-5 border-t border-slate-200 dark:border-slate-700">
+                                        <p className="text-slate-600 dark:text-slate-300 mb-4 italic">{description}</p>
+                                        <h4 className="font-semibold mb-2 text-slate-800 dark:text-slate-100">Chapters:</h4>
+                                        <ul className="list-decimal list-inside text-slate-500 dark:text-slate-400 space-y-1">
+                                            {chapters.map(chapter => (
+                                                <li key={chapter.id}>{chapter.title}</li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    );
+                })}
+            </div>
+        </div>
+    );
+};
+
+
 const SubjectSelectionScreen: React.FC = () => {
     const context = useContext(AppContext);
 
@@ -46,7 +104,7 @@ const SubjectSelectionScreen: React.FC = () => {
     const { appState: { grade }, selectSubject, goHome } = context;
 
     return (
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-4xl mx-auto py-8">
             <header className="flex items-center justify-between mb-8">
                  <button onClick={goHome} className="text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline">
                     &larr; Change Class
@@ -65,6 +123,7 @@ const SubjectSelectionScreen: React.FC = () => {
                     />
                 ))}
             </div>
+             <SyllabusOverview grade={grade} />
         </div>
     );
 };

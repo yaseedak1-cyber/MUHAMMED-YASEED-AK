@@ -1,6 +1,19 @@
-import { Grade, Subject, PerformanceData, QuizRecord } from '../types';
+import { Grade, Subject, QuizRecord } from '../types';
 
 const STORAGE_KEY = 'ncertGeniusAnalytics';
+
+export interface ChapterProgress {
+    [chapterId: string]: {
+        completed: boolean;
+        lastViewed: string; // ISO string
+    };
+}
+
+export interface PerformanceData {
+    quizHistory: QuizRecord[];
+    chapterProgress: Record<Grade, Partial<Record<Subject, ChapterProgress>>>;
+}
+
 
 export const getPerformanceData = (): PerformanceData => {
     try {

@@ -4,9 +4,10 @@ import { PerformanceData, Grade, Subject, QuizRecord } from '../types';
 import { AppContext } from '../contexts/AppContext';
 import { CHAPTERS, SUBJECTS } from '../constants';
 
-const TrophyIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 11l3-3m0 0l3 3m-3-3v8m0-13a9 9 0 110 18 9 9 0 010-18z" /></svg>);
+const TrophyIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.532 8.086a8.003 8.003 0 01-11.064 0M15.532 8.086c.68-1.336 1.137-2.746 1.25-4.182C16.91 2.345 15.424 1 13.722 1H10.28c-1.702 0-3.188 1.345-3.06 2.904.113 1.436.57 2.846 1.25 4.182m9.064 0a8.003 8.003 0 01-11.064 0m11.064 0l1.173 5.864a1 1 0 01-.976 1.223H7.207a1 1 0 01-.976-1.223L7.404 8.086M12 14v7m-3-3h6" /></svg>);
 const QuizIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>);
 const BookOpenIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>);
+const ChartBarIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 mb-4 text-slate-400 dark:text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>);
 
 const StatCard: React.FC<{ title: string, value: string, icon: JSX.Element, color: string }> = ({ title, value, icon, color }) => (
     <div className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-lg flex items-center space-x-4">
@@ -148,8 +149,8 @@ const AnalyticsScreen: React.FC = () => {
                     </section>
                 </div>
             ) : (
-                <div className="text-center py-16 px-6 bg-white dark:bg-slate-800 rounded-xl shadow-lg">
-                    <BookOpenIcon />
+                <div className="text-center py-16 px-6 bg-white dark:bg-slate-800 rounded-xl shadow-lg flex flex-col items-center">
+                    <ChartBarIcon />
                     <h2 className="mt-4 text-2xl font-bold">No Data Yet!</h2>
                     <p className="mt-2 text-slate-500 dark:text-slate-400">Start reading chapters and taking quizzes to see your progress here.</p>
                     <button onClick={context.goHome} className="mt-6 px-5 py-2.5 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition">Get Started</button>

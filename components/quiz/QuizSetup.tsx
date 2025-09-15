@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { Chapter, QuizSettings, Difficulty, QuestionType } from '../../types';
+import { AppContext } from '../../contexts/AppContext';
 
 interface QuizSetupProps {
     chapters: Chapter[];
@@ -13,6 +14,9 @@ const QuizSetup: React.FC<QuizSetupProps> = ({ chapters, onStartQuiz, isLoading 
     const [difficulty, setDifficulty] = useState<Difficulty>(Difficulty.Medium);
     const [selectedTypes, setSelectedTypes] = useState<QuestionType[]>([QuestionType.MCQ, QuestionType.TrueFalse]);
     const [error, setError] = useState<string | null>(null);
+
+    const context = useContext(AppContext);
+    const isOnline = context?.isOnline ?? navigator.onLine;
 
     const handleChapterToggle = (chapter: Chapter) => {
         setSelectedChapters(prev =>
@@ -95,9 +99,15 @@ const QuizSetup: React.FC<QuizSetupProps> = ({ chapters, onStartQuiz, isLoading 
                     </div>
                 </div>
                 
-                {error && <p className="text-red-500 text-center">{error}</p>}
+                {error && <p className="text-red-500 text-center mb-4">{error}</p>}
+
+                {!isOnline && (
+                    <div role="alert" className="text-center text-yellow-800 dark:text-yellow-200 bg-yellow-100 dark:bg-yellow-900/20 p-3 rounded-md">
+                        You are offline. Quiz generation requires an internet connection.
+                    </div>
+                )}
                 
-                <button type="submit" disabled={isLoading} className="w-full bg-green-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-green-700 transition-colors duration-300 disabled:bg-slate-400 disabled:cursor-not-allowed flex items-center justify-center">
+                <button type="submit" disabled={isLoading || !isOnline} className="w-full bg-green-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-green-700 transition-colors duration-300 disabled:bg-slate-400 dark:disabled:bg-slate-600 disabled:cursor-not-allowed flex items-center justify-center">
                     {isLoading ? <><Spinner/> Generating...</> : 'Start Quiz'}
                 </button>
             </form>
